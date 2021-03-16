@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="format-detection" content="telephone=no, email=no"/>
+<meta name="renderer" content="webkit">
+<meta name="Copyright" content="Copyright (c) 2020 by 北京新东方学校"/>
+<title>北京新东方学校登录页</title>
+<meta name="description" content="描述"/>
+<meta name="keywords" content="关键字"/>
+<link th:href="@{/css/index.css}" rel="stylesheet" type="text/css">
+<link th:href="@{/css/hdfullscreen.css}" rel="stylesheet" type="text/css">
+    <!--[if lt IE 9]>
+  <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+  <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+  <![endif]-->
+<script src="https://bj.xdf.cn/bj_static/xdf_common/add_head_scripts.js"></script>
+  </head>
+<body>
+<h1>北京新东方学校登录页</h1>
+<div class="body_con">
+	<div class="body">
+		<!-- logo -->
+		<div class="contn">
+			<div class="logo">
+				<a href="http://bj.xdf.cn/" target="_blank" title="北京新东方学校" alt="北京新东方学校">
+					<img th:src="@{/images/logo.png}">
+				</a>
+			</div>
+		</div>
+		<!-- 验证码登录模块 -->
+		<div class="main">
+			<div class="form_main codelogin">
+				<form >
+					<h2>验证码登录</h2>
+					<h3>验证即登录，未注册将自动创建新东方账户</h3>
+					<div class="from_box">
+						<label class="tell">
+							<input type="text" id="tel" name="tell" placeholder="请输入手机号" >
+						</label>
+						<label class="tellcode">
+							<input type="text" id="tellcode" name="tellCode" placeholder="请输入验证码" >
+							<button id="sendBtn" class="sendBtn" type="button">获取验证码</button>
+						</label>
+						<button class="btn_button codelogin_button" type="button">登录</button>
+					</div>
+				</form>
+				<div class="change_login change_passlogin">账户密码登录</div>
+			</div>
+			<div class="form_main passlogin">
+				<form >
+					<h2>账户密码登录</h2>
+					<label class="tell">
+						<input type="text" id="userName" name="userName" placeholder="请输入手机号或邮箱" >
+					</label>
+					<label class="password">
+						<input type="password" id="passWord" name="passWord" placeholder="请输入密码" >
+					</label>
+					<button class="btn_button password_button" type="button">登录</button>
+				</form>
+				<div class="change_login change_codelogin">验证码登录</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="bottom_img">
+		<img th:src="@{/images/bottom_img.jpg}">
+	</div>
+</div>
+<!-- 验证码拼图 -->
+<div class="cover">
+	<div class="imgpi">
+		<img class="close" title="关闭" th:src="@{/images/sed_close.png}">
+		<div class="verBox">
+			<div class="msg">身份校验</div>
+			<div id="imgVer" style="display:inline-block;"></div>
+		</div>
+
+	</div>
+</div>
+
+<script type="text/javascript" th:src="@{/js/jquery/jquery.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/index.js}"></script>
+<script type="text/javascript" th:src="@{/js/jquery/AppUtils.js}"></script>
+<script type="text/javascript" th:src="@{/js/jquery/noeFunc.js}"></script>
+<script type="text/javascript" th:src="@{/js/blockui/blockui.js}"></script>
+<script type="text/javascript" th:src="@{/js/blockui/blockCenter.js}"></script>
+<script type="text/javascript">
+	function time(){
+		var time = 60;
+		if(time==60){
+		   var time1=setInterval(function(){
+			   if(time==0){
+	    		   $(".sendBtn").html("获取验证码");
+	    		   $(".sendBtn").removeAttr("disabled");
+	    		   $('.sendBtn').removeClass('send0');
+	    		   time=60;
+	    		   clearInterval(time1);
+	    	   }else{
+	    		   $(".sendBtn").attr("disabled","true");
+	    		   $(".sendBtn").html("("+time+")S后重发");
+	    		   $('.sendBtn').addClass('send0');
+	    		   time--;
+	    	   }
+			   }, 1000);
+		   }
+	}
+</script>
+<!-- 验证码拼图 -->
+<script th:src="@{/js/img_ver.js}"></script>
+<script>
+	var script = window.document.location.href
+	var contextPath=window.document.location.pathname;
+	var pos=script.indexOf(contextPath);
+	var localPaht=script.substring(0,pos);
+	var index =contextPath.substr(1).indexOf("/");
+	var localhostPaht = localPaht+contextPath.substr(0,login+1);
+	imgVer({
+		el:'$("#imgVer")',
+		width:'300',
+		height:'200',
+		img:[
+			localhostPaht+'/images/Pic1.jpg',
+			localhostPaht+'/images/Pic2.jpg',
+			localhostPaht+'/images/Pic3.jpg'
+		],
+		success:function () {
+			AppUtils.alert('验证成功，验证码倒计时');
+			time();
+			$('.cover').hide();
+			var tell = document.getElementById('tel').value;
+			var tel=tell.replace(/\s+/g, "");
+			data = {'mobile': tel};
+			AppUtils.doPost(localhostPaht+'/login/getVerificationCode', data, function (res) {
+				if (!res.veritySuccess) {
+					AppUtils.alert(res.errorMsg);
+				}
+			});
+		},
+		error:function () {
+			//alert('错误执行')
+		}
+	});
+</script>
+
+<!-- Google Tag Manager -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MWF25M"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-MWF25M');</script>
+<!-- End Google Tag Manager -->
+<script src="https://bj.xdf.cn/bj_static/xdf_common/add_foot_scripts.js"></script>
+</body>
+</html>
